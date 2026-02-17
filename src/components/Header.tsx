@@ -1,6 +1,11 @@
-import { Keyboard, Trophy } from "lucide-react";
+import { Keyboard, Trophy, X } from "lucide-react";
 
-export const Header = ({ highscore }: { highscore: number }) => {
+interface HeaderProps {
+  highscore: number;
+  onResetHighScore: () => void;
+}
+
+export const Header = ({ highscore, onResetHighScore }: HeaderProps) => {
   return (
     <header className="max-w-5xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between">
@@ -10,7 +15,7 @@ export const Header = ({ highscore }: { highscore: number }) => {
             <h1 className="text-xl font-semibold text-white tracking-tight">
               Typing Speed Test
             </h1>
-            <p className="text-sm text-white/40">
+            <p className="text-sm text-white/40 sm:block hidden">
               Type as fast as you can in 60 seconds
             </p>
           </div>
@@ -20,8 +25,17 @@ export const Header = ({ highscore }: { highscore: number }) => {
           <Trophy className="w-4 h-4 text-amber-400/70" />
           <span className="text-sm">
             Personal best:{" "}
-            <span className="text-white/80 font-medium">0 WPM</span>
+            <span className="text-white/80 font-medium">{highscore} WPM</span>
           </span>
+          {highscore > 0 && (
+            <button
+              onClick={onResetHighScore}
+              className="p-1 rounded hover:bg-white/10 text-white/30 hover:text-white/60 transition-colors cursor-pointer"
+              title="Reset high score"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </header>

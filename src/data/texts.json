@@ -1,0 +1,17 @@
+{
+  "Easy": [
+    "The sun was warm on his face as he walked through the park. Birds were singing in the trees above him. He sat down on a bench and watched the clouds move across the sky. It was a good day to be outside. The air was fresh and clean after the morning rain.",
+    "She opened the door and stepped into the room. The light was soft and golden. A cat was sleeping on the chair by the window. She put her bag down on the table and smiled. It felt good to be home after a long day at work.",
+    "The dog ran across the yard and jumped over the fence. He landed in the soft grass on the other side. A bird flew up from the ground and into the sky. The dog barked once and then sat down. He was happy to be outside in the warm sun."
+  ],
+  "Medium": [
+    "The restaurant had earned its reputation through years of dedication to quality and innovation. Every dish was carefully prepared using locally sourced ingredients, and the menu changed with the seasons to reflect what was freshest. Regulars often remarked that no two visits were quite the same, which kept them coming back.",
+    "Learning to play a musical instrument requires both patience and consistent practice. Many beginners underestimate the importance of building strong fundamentals before attempting complex pieces. Teachers often recommend starting with simple scales and gradually increasing difficulty, allowing muscle memory to develop naturally over several months.",
+    "The architecture of the old library impressed every visitor who walked through its doors. Tall marble columns framed the entrance, and a grand staircase led up to the reading rooms above. Stained glass windows cast colorful patterns across the polished wooden floors throughout the afternoon hours."
+  ],
+  "Hard": [
+    "The archaeological expedition unearthed artifacts that complicated prevailing theories about Bronze Age trade networks. Obsidian from Anatolia, lapis lazuli from Afghanistan, and amber from the Baltic—all discovered in a single Mycenaean tomb—suggested commercial connections far more extensive than previously hypothesized. \"We've underestimated ancient peoples' navigational capabilities,\" the lead researcher observed.",
+    "Quantum entanglement—Einstein's \"spooky action at a distance\"—has evolved from a philosophical curiosity into a cornerstone of next-generation cryptography. Researchers at MIT demonstrated that entangled photon pairs could transmit 256-bit encryption keys across 1,200 kilometers of fiber-optic cable with a bit-error rate of only 3.7%, shattering previous benchmarks by an order of magnitude.",
+    "The manuscript's provenance remained contentious; carbon-14 dating placed it at approximately 1420–1450 CE, yet the vellum's chemical composition—particularly its elevated zinc-to-copper ratio (3.8:1)—contradicted known European manufacturing techniques of that era. \"It's either a remarkably sophisticated forgery,\" Dr. Whitfield concluded, \"or evidence of a previously undocumented scriptorium.\""
+  ]
+}

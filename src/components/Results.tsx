@@ -7,6 +7,7 @@ interface ResultsProps {
   accuracy: number;
   correctChars: number;
   incorrectChars: number;
+  onRestart: () => void;
 }
 
 export const Results = ({
@@ -14,6 +15,7 @@ export const Results = ({
   accuracy,
   correctChars,
   incorrectChars,
+  onRestart,
 }: ResultsProps) => {
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 sm:py-16">
@@ -59,7 +61,10 @@ export const Results = ({
         </div>
 
         {/* Go Again button */}
-        <button className="mt-8 flex items-center gap-2 px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors cursor-pointer">
+        <button
+          onClick={onRestart}
+          className="mt-8 flex items-center gap-2 px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors cursor-pointer"
+        >
           Go Again
           <RotateCcw className="w-4 h-4" />
         </button>

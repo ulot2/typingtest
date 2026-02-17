@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { RotateCcw } from "lucide-react";
 
 interface MainProps {
@@ -9,6 +9,7 @@ interface MainProps {
   gameState: string;
   onType: (key: string) => void;
   onStart: () => void;
+  onRestart: () => void;
 }
 
 export const Main = ({
@@ -17,6 +18,7 @@ export const Main = ({
   gameState,
   onType,
   onStart,
+  onRestart,
 }: MainProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -101,7 +103,10 @@ export const Main = ({
         <div>
           <hr className="border-white/10 my-4" />
           <div className="flex items-center justify-center mt-4">
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60 hover:text-white hover:border-white/20 transition-colors cursor-pointer">
+            <button
+              onClick={onRestart}
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60 hover:text-white hover:border-white/20 transition-colors cursor-pointer"
+            >
               Restart
               <RotateCcw className="w-5" />
             </button>

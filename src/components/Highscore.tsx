@@ -8,6 +8,7 @@ interface HighscoreProps {
   accuracy: number;
   correctChars: number;
   incorrectChars: number;
+  onRestart: () => void;
 }
 
 export const Highscore = ({
@@ -15,6 +16,7 @@ export const Highscore = ({
   accuracy,
   correctChars,
   incorrectChars,
+  onRestart,
 }: HighscoreProps) => {
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 sm:py-16">
@@ -52,7 +54,10 @@ export const Highscore = ({
           </div>
         </div>
 
-        <button className="mt-8 flex items-center gap-2 px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors cursor-pointer">
+        <button
+          onClick={onRestart}
+          className="mt-8 flex items-center gap-2 px-6 py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors cursor-pointer"
+        >
           Beat This Score
           <RotateCcw className="w-4 h-4" />
         </button>

@@ -7,8 +7,12 @@ import { Results } from "@/components/Results";
 import { SpeedDetails } from "@/components/SpeedDetails";
 import { useEffect, useState } from "react";
 
-const sampleText =
-  'The archaeological expedition unearthed artifacts that complicated prevailing theories about Bronze Age trade networks. Obsidian from Anatolia, lapis lazuli from Afghanistan, and amber from the Baltic—all discovered in a single Mycenaean tomb—suggested commercial connections far more extensive than previously hypothesized. "We\'ve underestimated ancient peoples\' navigational capabilities and their appetite for luxury goods," the lead researcher observed. "Globalization isn\'t as modern as we assume."';
+import texts from "@/data/texts.json";
+
+function getRandomText(difficulty: string): string {
+  const pool = texts[difficulty as keyof typeof texts] || texts["Easy"];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 export default function Home() {
   const [gameState, setGameState] = useState("idle");
@@ -17,13 +21,25 @@ export default function Home() {
   const [typedChars, setTypedChars] = useState("");
   const [correctChars, setCorrectChars] = useState(0);
   const [incorrectChars, setIncorrectChars] = useState(0);
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
 
   const [difficulty, setDifficulty] = useState("Easy");
   const [mode, setMode] = useState("Timed (60s)");
 
+  const [sampleText, setSampleText] = useState(
+    () => texts[difficulty as keyof typeof texts][0],
+  );
+
   const [highScore, setHighScore] = useState(0);
 
-  const elapsedTime = 60 - timeRemaining;
+  useEffect(() => {
+    const saved = localStorage.getItem("typingTestHighScore");
+    // eslint-disable-next-line
+    if (saved) setHighScore(Number(saved));
+  }, []);
+
+  const elapsedTime =
+    mode === "Timed (60s)" ? 60 - timeRemaining : timeRemaining;
   const wpm =
     elapsedTime > 0 ? Math.round(correctChars / 5 / (elapsedTime / 60)) : 0;
 
@@ -34,17 +50,26 @@ export default function Home() {
 
   useEffect(() => {
     if (gameState !== "typing") return;
+
     const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          setGameState("finished");
-          return 0;
-        }
-        return prev - 1;
-      });
+      if (mode === "Timed (60s)") {
+        setTimeRemaining((prev) => Math.max(prev - 1, 0));
+      } else {
+        setTimeRemaining((prev) => prev + 1);
+      }
     }, 1000);
+
     return () => clearInterval(timer);
-  }, [gameState]);
+  }, [gameState, mode]);
+
+  if (mode === "Timed (60s)" && gameState === "typing" && timeRemaining === 0) {
+    setGameState("finished");
+    if (wpm > highScore) {
+      setHighScore(wpm);
+      setIsNewHighScore(true);
+      localStorage.setItem("typingTestHighScore", String(wpm));
+    }
+  }
 
   const handleType = (key: string) => {
     if (gameState === "finished") return;
@@ -63,22 +88,68 @@ export default function Home() {
     }
 
     setTypedChars((prev) => prev + key);
+
+    if (typedChars.length + 1 >= sampleText.length) {
+      setGameState("finished");
+      const finalCorrect =
+        key === sampleText[typedChars.length] ? correctChars + 1 : correctChars;
+      const currentElapsed =
+        mode === "Timed (60s)" ? 60 - timeRemaining : timeRemaining;
+      const finalWpm =
+        currentElapsed > 0
+          ? Math.round(finalCorrect / 5 / (currentElapsed / 60))
+          : 0;
+      if (finalWpm > highScore) {
+        setHighScore(finalWpm);
+        setIsNewHighScore(true);
+        localStorage.setItem("typingTestHighScore", String(finalWpm));
+      }
+    }
   };
 
-  const isNewHighScore = gameState === "finished" && wpm > highScore;
+  const handleRestart = () => {
+    setGameState("idle");
+    setTimeRemaining(mode === "Timed (60s)" ? 60 : 0);
+    setTypedChars("");
+    setCorrectChars(0);
+    setIncorrectChars(0);
+    setIsNewHighScore(false);
+    setSampleText(getRandomText(difficulty));
+  };
 
   return (
-    <div>
-      <Header highscore={highScore} />
-      <SpeedDetails
-        wpm={wpm}
-        accuracy={accuracy}
-        timeLeft={timeRemaining}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
-        mode={mode}
-        setMode={setMode}
+    <div className="h-screen overflow-hidden ">
+      <Header
+        highscore={highScore}
+        onResetHighScore={() => {
+          setHighScore(0);
+          localStorage.removeItem("typingTestHighScore");
+        }}
       />
+
+      {gameState !== "finished" ? (
+        <SpeedDetails
+          wpm={wpm}
+          accuracy={accuracy}
+          timeLeft={timeRemaining}
+          difficulty={difficulty}
+          setDifficulty={(value) => {
+            setDifficulty(value);
+            if (gameState === "idle") {
+              setSampleText(getRandomText(value));
+            }
+          }}
+          mode={mode}
+          setMode={(value) => {
+            setMode(value);
+            if (gameState === "idle") {
+              setTimeRemaining(value === "Timed (60s)" ? 60 : 0);
+            }
+          }}
+        />
+      ) : (
+        <></>
+      )}
 
       {gameState !== "finished" ? (
         <Main
@@ -87,6 +158,7 @@ export default function Home() {
           gameState={gameState}
           onType={handleType}
           onStart={() => setGameState("typing")}
+          onRestart={handleRestart}
         />
       ) : isNewHighScore ? (
         <Highscore
@@ -94,6 +166,7 @@ export default function Home() {
           accuracy={accuracy}
           correctChars={correctChars}
           incorrectChars={incorrectChars}
+          onRestart={handleRestart}
         />
       ) : (
         <Results
@@ -101,6 +174,7 @@ export default function Home() {
           accuracy={accuracy}
           correctChars={correctChars}
           incorrectChars={incorrectChars}
+          onRestart={handleRestart}
         />
       )}
     </div>
