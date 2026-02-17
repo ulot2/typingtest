@@ -3,7 +3,19 @@
 import { PartyPopper, RotateCcw } from "lucide-react";
 import Image from "next/image";
 
-export const Highscore = () => {
+interface HighscoreProps {
+  wpm: number;
+  accuracy: number;
+  correctChars: number;
+  incorrectChars: number;
+}
+
+export const Highscore = ({
+  wpm,
+  accuracy,
+  correctChars,
+  incorrectChars,
+}: HighscoreProps) => {
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 sm:py-16">
       <div className="flex flex-col items-center text-center">
@@ -21,18 +33,21 @@ export const Highscore = () => {
         <div className="flex gap-2 sm:gap-4 sm:flex-row flex-col text-left mt-8 w-full max-w-md">
           <div className="flex-1 min-w-0 bg-white/4 border border-white/8 rounded-xl p-3 sm:p-5">
             <p className="text-white/40 text-xs sm:text-sm">WPM:</p>
-            <p className="text-white text-xl sm:text-3xl font-bold mt-1">95</p>
+            <p className="text-white text-xl sm:text-3xl font-bold mt-1">
+              {wpm}
+            </p>
           </div>
           <div className="flex-1 min-w-0 bg-white/4 border border-white/8 rounded-xl p-3 sm:p-5">
             <p className="text-white/40 text-xs sm:text-sm">Accuracy:</p>
             <p className="text-emerald-400 text-xl sm:text-3xl font-bold mt-1">
-              100%
+              {accuracy}%
             </p>
           </div>
           <div className="flex-1 min-w-0 bg-white/4 border border-white/8 rounded-xl p-3 sm:p-5">
             <p className="text-white/40 text-xs sm:text-sm">Characters</p>
             <p className="text-emerald-400 text-xl sm:text-3xl font-bold mt-1">
-              120<span className="text-red-400">/5</span>
+              {correctChars}
+              <span className="text-red-400">/{incorrectChars}</span>
             </p>
           </div>
         </div>

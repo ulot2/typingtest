@@ -1,31 +1,91 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RotateCcw } from "lucide-react";
 
-const sampleText =
-  'The archaeological expedition unearthed artifacts that complicated prevailing theories about Bronze Age trade networks. Obsidian from Anatolia, lapis lazuli from Afghanistan, and amber from the Baltic—all discovered in a single Mycenaean tomb—suggested commercial connections far more extensive than previously hypothesized. "We\'ve underestimated ancient peoples\' navigational capabilities and their appetite for luxury goods," the lead researcher observed. "Globalization isn\'t as modern as we assume."';
+interface MainProps {
+  sampleText: string;
+  typedChars: string;
+  gameState: string;
+  onType: (key: string) => void;
+  onStart: () => void;
+}
 
-export const Main = () => {
-  const [started, setStarted] = useState(false);
+export const Main = ({
+  sampleText,
+  typedChars,
+  gameState,
+  onType,
+  onStart,
+}: MainProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (gameState === "typing") {
+      inputRef.current?.focus();
+    }
+  }, [gameState]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key.length === 1) {
+      e.preventDefault();
+      onType(e.key);
+    }
+  };
+
+  const started = gameState !== "idle";
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-5">
       <hr className="border-white/10 my-4" />
-      <div className="relative rounded-xl bg-white/3 border border-white/6 p-8 sm:p-10 min-h-[260px] flex items-center justify-center">
+      <div
+        className="relative rounded-xl bg-white/3 border border-white/6 p-8 sm:p-10 min-h-[260px] flex items-center justify-center cursor-text"
+        onClick={() => inputRef.current?.focus()}
+      >
+        <label htmlFor="type" className="sr-only">
+          Type here
+        </label>
+        <input
+          ref={inputRef}
+          name="type"
+          id="type"
+          onKeyDown={handleKeyDown}
+          className="absolute opacity-0 w-0 h-0"
+          readOnly
+        />
         <p
           className={`text-lg sm:text-xl leading-relaxed font-(family-name:--font-geist-mono) transition-all duration-500 ${
             started ? "text-white/50" : "text-white/25 blur-[5px] select-none"
           }`}
-          onClick={() => setStarted(true)}
+          onClick={() => inputRef.current?.focus()}
         >
-          {sampleText}
+          {sampleText.split("").map((char, i) => {
+            let colorClass = "text-white/25";
+
+            if (i < typedChars.length) {
+              colorClass =
+                typedChars[i] === char
+                  ? "text-emerald-400"
+                  : "text-red-400 underline";
+            } else if (i === typedChars.length) {
+              colorClass = "text-white/50 underline";
+            }
+
+            return (
+              <span key={i} className={colorClass}>
+                {char}
+              </span>
+            );
+          })}
         </p>
 
         {!started && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 z-10">
             <button
-              onClick={() => setStarted(true)}
+              onClick={() => {
+                onStart();
+                inputRef.current?.focus();
+              }}
               className="px-6 py-2.5 bg-blue-500 hover:bg-blue-400 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-[0_4px_20px_rgba(59,130,246,0.4)]"
             >
               Start Typing Test

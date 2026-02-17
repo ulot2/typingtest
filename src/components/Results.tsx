@@ -2,7 +2,19 @@
 
 import { CheckCircle, RotateCcw, Sparkle } from "lucide-react";
 
-export const Results = () => {
+interface ResultsProps {
+  wpm: number;
+  accuracy: number;
+  correctChars: number;
+  incorrectChars: number;
+}
+
+export const Results = ({
+  wpm,
+  accuracy,
+  correctChars,
+  incorrectChars,
+}: ResultsProps) => {
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 sm:py-16">
       <div className="relative flex flex-col items-center text-center">
@@ -27,18 +39,21 @@ export const Results = () => {
         <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-8 w-full max-w-md">
           <div className="bg-white/4 border border-white/8 rounded-xl p-4 sm:p-5">
             <p className="text-white/40 text-xs sm:text-sm">WPM:</p>
-            <p className="text-white text-2xl sm:text-3xl font-bold mt-1">85</p>
+            <p className="text-white text-2xl sm:text-3xl font-bold mt-1">
+              {wpm}
+            </p>
           </div>
           <div className="bg-white/4 border border-white/8 rounded-xl p-4 sm:p-5">
             <p className="text-white/40 text-xs sm:text-sm">Accuracy:</p>
             <p className="text-emerald-400 text-2xl sm:text-3xl font-bold mt-1">
-              90%
+              {accuracy}%
             </p>
           </div>
           <div className="bg-white/4 border border-white/8 rounded-xl p-4 sm:p-5">
             <p className="text-white/40 text-xs sm:text-sm">Characters</p>
             <p className="text-emerald-400 text-2xl sm:text-3xl font-bold mt-1">
-              120<span className="text-red-400">/5</span>
+              {correctChars}
+              <span className="text-red-400">/{incorrectChars}</span>
             </p>
           </div>
         </div>

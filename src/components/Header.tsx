@@ -1,6 +1,6 @@
 import { Keyboard, Trophy } from "lucide-react";
 
-export const Header = () => {
+export const Header = ({ highscore }: { highscore: number }) => {
   return (
     <header className="max-w-5xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between">
