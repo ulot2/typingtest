@@ -12,7 +12,7 @@ export const Header = ({ highscore, onResetHighScore }: HeaderProps) => {
         <div className="flex items-center gap-3">
           <Keyboard className="w-6 h-6 text-white/60" />
           <div>
-            <h1 className="text-xl font-semibold text-white tracking-tight">
+            <h1 className="text-xl font-semibold text-white tracking-tight sm:block hidden">
               Typing Speed Test
             </h1>
             <p className="text-sm text-white/40 sm:block hidden">

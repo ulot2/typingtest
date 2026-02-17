@@ -52,8 +52,11 @@ export const Main = ({
           name="type"
           id="type"
           onKeyDown={handleKeyDown}
-          className="absolute opacity-0 w-0 h-0"
-          readOnly
+          className="absolute top-0 left-0 w-full h-full opacity-0 cursor-text"
+          autoCapitalize="off"
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck={false}
         />
         <p
           className={`text-lg sm:text-xl leading-relaxed font-(family-name:--font-geist-mono) transition-all duration-500 ${
