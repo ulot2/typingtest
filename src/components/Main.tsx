@@ -77,7 +77,7 @@ export const Main = ({
           onInput={handleInput}
           onFocus={() => {
             setTimeout(() => {
-              containerRef.current?.scrollIntoView({
+              activeCharRef.current?.scrollIntoView({
                 behavior: "smooth",
                 block: "center",
               });
