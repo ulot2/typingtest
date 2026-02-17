@@ -35,6 +35,16 @@ export const Main = ({
     }
   };
 
+  // Mobile keyboards don't reliably fire onKeyDown — they use onInput instead
+  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const value = e.currentTarget.value;
+    if (value.length > 0) {
+      const lastChar = value[value.length - 1];
+      onType(lastChar);
+      e.currentTarget.value = ""; // Clear so we always get the next char
+    }
+  };
+
   const started = gameState !== "idle";
 
   return (
@@ -52,6 +62,7 @@ export const Main = ({
           name="type"
           id="type"
           onKeyDown={handleKeyDown}
+          onInput={handleInput}
           className="absolute top-0 left-0 w-full h-full opacity-0 cursor-text"
           autoCapitalize="off"
           autoCorrect="off"
