@@ -21,6 +21,7 @@ export const Main = ({
   onRestart,
 }: MainProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (gameState === "typing") {
@@ -45,12 +46,23 @@ export const Main = ({
     }
   };
 
+  // Scroll the text area into view when the mobile keyboard opens
+  const handleFocus = () => {
+    setTimeout(() => {
+      containerRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 300); // Delay to let the keyboard finish animating
+  };
+
   const started = gameState !== "idle";
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-5">
       <hr className="border-white/10 my-4" />
       <div
+        ref={containerRef}
         className="relative rounded-xl bg-white/3 border border-white/6 p-8 sm:p-10 min-h-[260px] flex items-center justify-center cursor-text"
         onClick={() => inputRef.current?.focus()}
       >
@@ -63,6 +75,7 @@ export const Main = ({
           id="type"
           onKeyDown={handleKeyDown}
           onInput={handleInput}
+          onFocus={handleFocus}
           className="absolute top-0 left-0 w-full h-full opacity-0 cursor-text"
           autoCapitalize="off"
           autoCorrect="off"

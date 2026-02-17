@@ -118,7 +118,7 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen overflow-hidden ">
+    <div className="h-screen overflow-auto sm:overflow-hidden">
       <Header
         highscore={highScore}
         onResetHighScore={() => {
