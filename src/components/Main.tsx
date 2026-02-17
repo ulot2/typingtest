@@ -46,15 +46,15 @@ export const Main = ({
     }
   };
 
-  // Scroll the text area into view when the mobile keyboard opens
-  const handleFocus = () => {
-    setTimeout(() => {
-      containerRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }, 300); // Delay to let the keyboard finish animating
-  };
+  // Scroll the active character into view on mobile
+  const activeCharRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    activeCharRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [typedChars]);
 
   const started = gameState !== "idle";
 
@@ -75,7 +75,14 @@ export const Main = ({
           id="type"
           onKeyDown={handleKeyDown}
           onInput={handleInput}
-          onFocus={handleFocus}
+          onFocus={() => {
+            setTimeout(() => {
+              containerRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }, 300);
+          }}
           className="absolute top-0 left-0 w-full h-full opacity-0 cursor-text"
           autoCapitalize="off"
           autoCorrect="off"
@@ -101,7 +108,11 @@ export const Main = ({
             }
 
             return (
-              <span key={i} className={colorClass}>
+              <span
+                key={i}
+                ref={i === typedChars.length ? activeCharRef : undefined}
+                className={colorClass}
+              >
                 {char}
               </span>
             );
