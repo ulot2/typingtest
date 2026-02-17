@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { RotateCcw } from "lucide-react";
 
 const sampleText =
   'The archaeological expedition unearthed artifacts that complicated prevailing theories about Bronze Age trade networks. Obsidian from Anatolia, lapis lazuli from Afghanistan, and amber from the Baltic—all discovered in a single Mycenaean tomb—suggested commercial connections far more extensive than previously hypothesized. "We\'ve underestimated ancient peoples\' navigational capabilities and their appetite for luxury goods," the lead researcher observed. "Globalization isn\'t as modern as we assume."';
@@ -9,7 +10,8 @@ export const Main = () => {
   const [started, setStarted] = useState(false);
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
+    <div className="max-w-5xl mx-auto px-6 py-5">
+      <hr className="border-white/10 my-4" />
       <div className="relative rounded-xl bg-white/3 border border-white/6 p-8 sm:p-10 min-h-[260px] flex items-center justify-center">
         <p
           className={`text-lg sm:text-xl leading-relaxed font-(family-name:--font-geist-mono) transition-all duration-500 ${
@@ -34,6 +36,18 @@ export const Main = () => {
           </div>
         )}
       </div>
+
+      {started && (
+        <div>
+          <hr className="border-white/10 my-4" />
+          <div className="flex items-center justify-center mt-4">
+            <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60 hover:text-white hover:border-white/20 transition-colors cursor-pointer">
+              Restart
+              <RotateCcw className="w-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
