@@ -46,14 +46,20 @@ export const Main = ({
     }
   };
 
-  // Scroll the active character into view on mobile
+  // Scroll the active character into view on mobile (only if off-screen)
   const activeCharRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    activeCharRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
+    const el = activeCharRef.current;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+
+    // Only scroll if the character is outside the visible area
+    if (rect.top < 0 || rect.bottom > viewportHeight) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   }, [typedChars]);
 
   const started = gameState !== "idle";
