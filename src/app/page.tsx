@@ -53,13 +53,11 @@ export default function Home() {
     if (saved) setHighScore(Number(saved));
   }, []);
 
-  // High-precision elapsed time for final WPM calculations
   const getElapsedSeconds = () => {
     if (!startTimeRef.current) return 0;
     return (performance.now() - startTimeRef.current) / 1000;
   };
 
-  // Live WPM uses state-based elapsed time (updates every timer tick)
   const elapsedTime =
     mode.startsWith("Timed") || mode === "Words"
       ? (getDuration(mode) || 60) - timeRemaining
@@ -81,7 +79,6 @@ export default function Home() {
       } else {
         setTimeRemaining((prev) => prev + 1);
       }
-      // Sample WPM for consistency calculation
       const elapsed = getElapsedSeconds();
       if (elapsed > 0) {
         const currentWpm = Math.round(correctChars / 5 / (elapsed / 60));
@@ -92,7 +89,6 @@ export default function Home() {
     }, 1000);
 
     return () => clearInterval(timer);
-    // correctChars is read via closure but we intentionally don't restart the timer for it
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState, mode]);
 
@@ -103,7 +99,6 @@ export default function Home() {
       timeRemaining === 0
     ) {
       setGameState("finished");
-      // Calculate consistency score from WPM samples
       const samples = wpmSamplesRef.current;
       if (samples.length >= 2) {
         const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
@@ -115,7 +110,6 @@ export default function Home() {
       } else {
         setConsistency(100);
       }
-      // Use precise elapsed for final WPM
       const elapsed = getElapsedSeconds();
       const finalWpm =
         elapsed > 0 ? Math.round(correctChars / 5 / (elapsed / 60)) : 0;
@@ -139,17 +133,14 @@ export default function Home() {
   const handleType = (key: string) => {
     if (gameState === "finished") return;
 
-    // Ignore modifier keys (Shift, Control, Alt, etc.) — only allow single chars and Backspace
     if (key.length > 1 && key !== "Backspace") return;
 
-    // Handle Backspace
     if (key === "Backspace") {
       if (typedChars.length === 0) return;
       const lastIndex = typedChars.length - 1;
       const deletedChar = typedChars[lastIndex];
       const expectedChar = sampleText[lastIndex];
 
-      // Roll back the correct/incorrect count
       if (deletedChar === expectedChar) {
         setCorrectChars((prev) => Math.max(0, prev - 1));
       } else {
@@ -159,7 +150,7 @@ export default function Home() {
       return;
     }
 
-    if (gameState === "idle") {
+    if (gameState === "idle" || !startTimeRef.current) {
       setGameState("typing");
       startTimeRef.current = performance.now();
     }
@@ -313,7 +304,12 @@ export default function Home() {
           typedChars={typedChars}
           gameState={gameState}
           onType={handleType}
-          onStart={() => setGameState("typing")}
+          onStart={() => {
+            setGameState("typing");
+            if (!startTimeRef.current) {
+              startTimeRef.current = performance.now();
+            }
+          }}
           onRestart={handleRestart}
           upcomingWords={
             mode === "Words" ? wordList.slice(currentWordIndex + 1) : undefined

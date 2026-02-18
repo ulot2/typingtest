@@ -23,7 +23,7 @@ export const Header = ({ highscore, onResetHighScore }: HeaderProps) => {
                 Typing Speed Test
               </h1>
               <p className="text-sm text-(--text-dim) sm:block hidden">
-                Type as fast as you can in 60 seconds
+                Type as fast as you can!
               </p>
             </div>
           </div>
