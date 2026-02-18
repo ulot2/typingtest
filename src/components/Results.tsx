@@ -12,6 +12,7 @@ interface ResultsProps {
   correctChars: number;
   incorrectChars: number;
   keyErrors: Record<string, number>;
+  consistency: number;
   onRestart: () => void;
 }
 
@@ -21,6 +22,7 @@ export const Results = ({
   correctChars,
   incorrectChars,
   keyErrors,
+  consistency,
   onRestart,
 }: ResultsProps) => {
   const [history] = useState<SessionRecord[]>(() => getHistory());
@@ -44,15 +46,15 @@ export const Results = ({
         </p>
 
         {/* Stats cards */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-8 w-full max-w-md">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 w-full max-w-xl">
           <div className="bg-(--surface) border border-(--border) rounded-xl p-4 sm:p-5">
-            <p className="text-(--text-dim) text-xs sm:text-sm">WPM:</p>
+            <p className="text-(--text-dim) text-xs sm:text-sm">WPM</p>
             <p className="text-(--text) text-2xl sm:text-3xl font-bold mt-1">
               {wpm}
             </p>
           </div>
           <div className="bg-(--surface) border border-(--border) rounded-xl p-4 sm:p-5">
-            <p className="text-(--text-dim) text-xs sm:text-sm">Accuracy:</p>
+            <p className="text-(--text-dim) text-xs sm:text-sm">Accuracy</p>
             <p className="text-(--correct) text-2xl sm:text-3xl font-bold mt-1">
               {accuracy}%
             </p>
@@ -62,6 +64,20 @@ export const Results = ({
             <p className="text-(--correct) text-2xl sm:text-3xl font-bold mt-1">
               {correctChars}
               <span className="text-(--incorrect)">/{incorrectChars}</span>
+            </p>
+          </div>
+          <div className="bg-(--surface) border border-(--border) rounded-xl p-4 sm:p-5">
+            <p className="text-(--text-dim) text-xs sm:text-sm">Consistency</p>
+            <p
+              className={`text-2xl sm:text-3xl font-bold mt-1 ${
+                consistency >= 80
+                  ? "text-(--correct)"
+                  : consistency >= 50
+                    ? "text-amber-400"
+                    : "text-(--incorrect)"
+              }`}
+            >
+              {consistency}%
             </p>
           </div>
         </div>

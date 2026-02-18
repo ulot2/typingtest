@@ -5,7 +5,7 @@ import { Highscore } from "@/components/Highscore";
 import { Main } from "@/components/Main";
 import { Results } from "@/components/Results";
 import { SpeedDetails } from "@/components/SpeedDetails";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import texts from "@/data/texts.json";
 import { generateWordText } from "@/data/wordPool";
@@ -35,6 +35,9 @@ export default function Home() {
   const [incorrectChars, setIncorrectChars] = useState(0);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
   const [keyErrors, setKeyErrors] = useState<Record<string, number>>({});
+  const wpmSamplesRef = useRef<number[]>([]);
+  const startTimeRef = useRef<number | null>(null);
+  const [consistency, setConsistency] = useState(100);
 
   const [difficulty, setDifficulty] = useState("Easy");
   const [mode, setMode] = useState("Timed (60s)");
@@ -47,10 +50,16 @@ export default function Home() {
 
   useEffect(() => {
     const saved = localStorage.getItem("typingTestHighScore");
-    // eslint-disable-next-line
     if (saved) setHighScore(Number(saved));
   }, []);
 
+  // High-precision elapsed time for final WPM calculations
+  const getElapsedSeconds = () => {
+    if (!startTimeRef.current) return 0;
+    return (performance.now() - startTimeRef.current) / 1000;
+  };
+
+  // Live WPM uses state-based elapsed time (updates every timer tick)
   const elapsedTime =
     mode.startsWith("Timed") || mode === "Words"
       ? (getDuration(mode) || 60) - timeRemaining
@@ -72,37 +81,87 @@ export default function Home() {
       } else {
         setTimeRemaining((prev) => prev + 1);
       }
+      // Sample WPM for consistency calculation
+      const elapsed = getElapsedSeconds();
+      if (elapsed > 0) {
+        const currentWpm = Math.round(correctChars / 5 / (elapsed / 60));
+        if (currentWpm > 0) {
+          wpmSamplesRef.current.push(currentWpm);
+        }
+      }
     }, 1000);
 
     return () => clearInterval(timer);
+    // correctChars is read via closure but we intentionally don't restart the timer for it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState, mode]);
 
-  if (
-    (mode.startsWith("Timed") || mode === "Words") &&
-    gameState === "typing" &&
-    timeRemaining === 0
-  ) {
-    setGameState("finished");
-    if (wpm > highScore) {
-      setHighScore(wpm);
-      setIsNewHighScore(true);
-      localStorage.setItem("typingTestHighScore", String(wpm));
+  useEffect(() => {
+    if (
+      (mode.startsWith("Timed") || mode === "Words") &&
+      gameState === "typing" &&
+      timeRemaining === 0
+    ) {
+      setGameState("finished");
+      // Calculate consistency score from WPM samples
+      const samples = wpmSamplesRef.current;
+      if (samples.length >= 2) {
+        const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
+        const variance =
+          samples.reduce((sum, s) => sum + (s - mean) ** 2, 0) / samples.length;
+        const stdDev = Math.sqrt(variance);
+        const cv = mean > 0 ? stdDev / mean : 0;
+        setConsistency(Math.round(Math.max(0, Math.min(100, (1 - cv) * 100))));
+      } else {
+        setConsistency(100);
+      }
+      // Use precise elapsed for final WPM
+      const elapsed = getElapsedSeconds();
+      const finalWpm =
+        elapsed > 0 ? Math.round(correctChars / 5 / (elapsed / 60)) : 0;
+      if (finalWpm > highScore) {
+        setHighScore(finalWpm);
+        setIsNewHighScore(true);
+        localStorage.setItem("typingTestHighScore", String(finalWpm));
+      }
+      saveSession({
+        wpm: finalWpm,
+        accuracy,
+        correctChars,
+        incorrectChars,
+        mode,
+        difficulty,
+      });
     }
-    saveSession({
-      wpm,
-      accuracy,
-      correctChars,
-      incorrectChars,
-      mode,
-      difficulty,
-    });
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRemaining, gameState]);
 
   const handleType = (key: string) => {
     if (gameState === "finished") return;
 
+    // Ignore modifier keys (Shift, Control, Alt, etc.) — only allow single chars and Backspace
+    if (key.length > 1 && key !== "Backspace") return;
+
+    // Handle Backspace
+    if (key === "Backspace") {
+      if (typedChars.length === 0) return;
+      const lastIndex = typedChars.length - 1;
+      const deletedChar = typedChars[lastIndex];
+      const expectedChar = sampleText[lastIndex];
+
+      // Roll back the correct/incorrect count
+      if (deletedChar === expectedChar) {
+        setCorrectChars((prev) => Math.max(0, prev - 1));
+      } else {
+        setIncorrectChars((prev) => Math.max(0, prev - 1));
+      }
+      setTypedChars((prev) => prev.slice(0, -1));
+      return;
+    }
+
     if (gameState === "idle") {
       setGameState("typing");
+      startTimeRef.current = performance.now();
     }
 
     const currentIndex = typedChars.length;
@@ -143,39 +202,27 @@ export default function Home() {
 
     if (typedChars.length + 1 >= sampleText.length) {
       setGameState("finished");
-      const finalCorrect =
-        key === sampleText[typedChars.length] ? correctChars + 1 : correctChars;
-      const currentElapsed =
-        mode.startsWith("Timed") || mode === "Words"
-          ? (getDuration(mode) || 60) - timeRemaining
-          : timeRemaining;
+      const isCorrect = key === sampleText[typedChars.length];
+      const finalCorrect = isCorrect ? correctChars + 1 : correctChars;
+      const finalIncorrect = isCorrect ? incorrectChars : incorrectChars + 1;
+      // Use precise elapsed for final WPM
+      const elapsed = getElapsedSeconds();
       const finalWpm =
-        currentElapsed > 0
-          ? Math.round(finalCorrect / 5 / (currentElapsed / 60))
-          : 0;
+        elapsed > 0 ? Math.round(finalCorrect / 5 / (elapsed / 60)) : 0;
       if (finalWpm > highScore) {
         setHighScore(finalWpm);
         setIsNewHighScore(true);
         localStorage.setItem("typingTestHighScore", String(finalWpm));
       }
       const finalAccuracy =
-        finalCorrect +
-          (incorrectChars + (key !== sampleText[typedChars.length] ? 1 : 0)) >
-        0
-          ? Math.round(
-              (finalCorrect /
-                (finalCorrect +
-                  incorrectChars +
-                  (key !== sampleText[typedChars.length] ? 1 : 0))) *
-                100,
-            )
+        finalCorrect + finalIncorrect > 0
+          ? Math.round((finalCorrect / (finalCorrect + finalIncorrect)) * 100)
           : 100;
       saveSession({
         wpm: finalWpm,
         accuracy: finalAccuracy,
         correctChars: finalCorrect,
-        incorrectChars:
-          incorrectChars + (key !== sampleText[typedChars.length] ? 1 : 0),
+        incorrectChars: finalIncorrect,
         mode,
         difficulty,
       });
@@ -194,6 +241,9 @@ export default function Home() {
     setIncorrectChars(0);
     setIsNewHighScore(false);
     setKeyErrors({});
+    wpmSamplesRef.current = [];
+    startTimeRef.current = null;
+    setConsistency(100);
     if (mode === "Words") {
       const words = generateWordText(difficulty, 50).split(" ");
       setWordList(words);
@@ -284,6 +334,7 @@ export default function Home() {
           correctChars={correctChars}
           incorrectChars={incorrectChars}
           keyErrors={keyErrors}
+          consistency={consistency}
           onRestart={handleRestart}
         />
       )}

@@ -46,7 +46,7 @@ export const Main = ({
   }, [gameState]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key.length === 1) {
+    if (e.key === "Backspace" || e.key.length === 1) {
       e.preventDefault();
       playKeySound();
       onType(e.key);
