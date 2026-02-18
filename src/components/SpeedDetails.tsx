@@ -129,6 +129,7 @@ export const SpeedDetails = ({
                   "Timed (60s)",
                   "Timed (120s)",
                   "Passage",
+                  "Words",
                   "Sudden Death",
                   "Zen",
                 ]}
@@ -173,6 +174,7 @@ export const SpeedDetails = ({
                 "Timed (60s)",
                 "Timed (120s)",
                 "Passage",
+                "Words",
                 "Sudden Death",
                 "Zen",
               ]}

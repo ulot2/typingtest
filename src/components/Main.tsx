@@ -10,6 +10,7 @@ interface MainProps {
   onType: (key: string) => void;
   onStart: () => void;
   onRestart: () => void;
+  upcomingWords?: string[];
 }
 
 export const Main = ({
@@ -19,6 +20,7 @@ export const Main = ({
   onType,
   onStart,
   onRestart,
+  upcomingWords,
 }: MainProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -146,6 +148,13 @@ export const Main = ({
               </span>
             );
           })}
+
+          {upcomingWords && upcomingWords.length > 0 && (
+            <span className="text-white/15">
+              {" "}
+              {upcomingWords.slice(0, 8).join(" ")}
+            </span>
+          )}
         </p>
 
         {!started && (

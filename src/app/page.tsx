@@ -8,6 +8,7 @@ import { SpeedDetails } from "@/components/SpeedDetails";
 import { useEffect, useState } from "react";
 
 import texts from "@/data/texts.json";
+import { generateWordText } from "@/data/wordPool";
 
 function getRandomText(difficulty: string): string {
   const pool = texts[difficulty as keyof typeof texts] || texts["Easy"];
@@ -24,6 +25,9 @@ export default function Home() {
   const [timeRemaining, setTimeRemaining] = useState(
     getDuration("Timed (60s)"),
   );
+
+  const [wordList, setWordList] = useState<string[]>([]);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   const [typedChars, setTypedChars] = useState("");
   const [correctChars, setCorrectChars] = useState(0);
@@ -106,6 +110,20 @@ export default function Home() {
 
     setTypedChars((prev) => prev + key);
 
+    if (mode === "Words" && typedChars.length + 1 >= sampleText.length) {
+      const nextIndex = currentWordIndex + 1;
+      setCurrentWordIndex(nextIndex);
+      setTypedChars("");
+      setSampleText(wordList[nextIndex] || "");
+      if (nextIndex >= wordList.length - 5) {
+        setWordList((prev) => [
+          ...prev,
+          ...generateWordText(difficulty, 20).split(" "),
+        ]);
+      }
+      return;
+    }
+
     if (typedChars.length + 1 >= sampleText.length) {
       setGameState("finished");
       const finalCorrect =
@@ -132,7 +150,14 @@ export default function Home() {
     setCorrectChars(0);
     setIncorrectChars(0);
     setIsNewHighScore(false);
-    setSampleText(getRandomText(difficulty));
+    if (mode === "Words") {
+      const words = generateWordText(difficulty, 50).split(" ");
+      setWordList(words);
+      setCurrentWordIndex(0);
+      setSampleText(words[0]);
+    } else {
+      setSampleText(getRandomText(difficulty));
+    }
   };
 
   return (
@@ -154,7 +179,14 @@ export default function Home() {
           setDifficulty={(value) => {
             setDifficulty(value);
             if (gameState === "idle") {
-              setSampleText(getRandomText(value));
+              if (mode === "Words") {
+                const words = generateWordText(value, 50).split(" ");
+                setWordList(words);
+                setCurrentWordIndex(0);
+                setSampleText(words[0]);
+              } else {
+                setSampleText(getRandomText(value));
+              }
             }
           }}
           mode={mode}
@@ -164,6 +196,14 @@ export default function Home() {
               setTimeRemaining(
                 value.startsWith("Timed") ? getDuration(value) : 0,
               );
+              if (value === "Words") {
+                const words = generateWordText(difficulty, 50).split(" ");
+                setWordList(words);
+                setCurrentWordIndex(0);
+                setSampleText(words[0]);
+              } else {
+                setSampleText(getRandomText(difficulty));
+              }
             }
           }}
         />
@@ -179,6 +219,9 @@ export default function Home() {
           onType={handleType}
           onStart={() => setGameState("typing")}
           onRestart={handleRestart}
+          upcomingWords={
+            mode === "Words" ? wordList.slice(currentWordIndex + 1) : undefined
+          }
         />
       ) : isNewHighScore ? (
         <Highscore
