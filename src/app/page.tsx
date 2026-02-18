@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 
 import texts from "@/data/texts.json";
 import { generateWordText } from "@/data/wordPool";
+import { saveSession } from "@/lib/history";
 
 function getRandomText(difficulty: string): string {
   const pool = texts[difficulty as keyof typeof texts] || texts["Easy"];
@@ -33,6 +34,7 @@ export default function Home() {
   const [correctChars, setCorrectChars] = useState(0);
   const [incorrectChars, setIncorrectChars] = useState(0);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
+  const [keyErrors, setKeyErrors] = useState<Record<string, number>>({});
 
   const [difficulty, setDifficulty] = useState("Easy");
   const [mode, setMode] = useState("Timed (60s)");
@@ -86,6 +88,14 @@ export default function Home() {
       setIsNewHighScore(true);
       localStorage.setItem("typingTestHighScore", String(wpm));
     }
+    saveSession({
+      wpm,
+      accuracy,
+      correctChars,
+      incorrectChars,
+      mode,
+      difficulty,
+    });
   }
 
   const handleType = (key: string) => {
@@ -102,6 +112,12 @@ export default function Home() {
       setCorrectChars((prev) => prev + 1);
     } else {
       setIncorrectChars((prev) => prev + 1);
+      // Track which key was expected (for heatmap)
+      const expectedKey = sampleText[currentIndex].toLowerCase();
+      setKeyErrors((prev) => ({
+        ...prev,
+        [expectedKey]: (prev[expectedKey] || 0) + 1,
+      }));
       if (mode === "Sudden Death") {
         setTypedChars((prev) => prev + key);
         setGameState("finished");
@@ -142,6 +158,27 @@ export default function Home() {
         setIsNewHighScore(true);
         localStorage.setItem("typingTestHighScore", String(finalWpm));
       }
+      const finalAccuracy =
+        finalCorrect +
+          (incorrectChars + (key !== sampleText[typedChars.length] ? 1 : 0)) >
+        0
+          ? Math.round(
+              (finalCorrect /
+                (finalCorrect +
+                  incorrectChars +
+                  (key !== sampleText[typedChars.length] ? 1 : 0))) *
+                100,
+            )
+          : 100;
+      saveSession({
+        wpm: finalWpm,
+        accuracy: finalAccuracy,
+        correctChars: finalCorrect,
+        incorrectChars:
+          incorrectChars + (key !== sampleText[typedChars.length] ? 1 : 0),
+        mode,
+        difficulty,
+      });
     }
   };
 
@@ -156,6 +193,7 @@ export default function Home() {
     setCorrectChars(0);
     setIncorrectChars(0);
     setIsNewHighScore(false);
+    setKeyErrors({});
     if (mode === "Words") {
       const words = generateWordText(difficulty, 50).split(" ");
       setWordList(words);
@@ -167,7 +205,7 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen overflow-auto sm:overflow-hidden">
+    <div className="h-screen overflow-auto sm:overflow-auto">
       <Header
         highscore={highScore}
         onResetHighScore={() => {
@@ -245,6 +283,7 @@ export default function Home() {
           accuracy={accuracy}
           correctChars={correctChars}
           incorrectChars={incorrectChars}
+          keyErrors={keyErrors}
           onRestart={handleRestart}
         />
       )}

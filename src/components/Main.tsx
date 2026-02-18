@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { RotateCcw } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
+import { useKeyboardSound } from "@/hooks/useKeyboardSound";
 
 const fontVarMap: Record<string, string> = {
   "Geist Mono": "var(--font-geist-mono)",
@@ -36,6 +37,7 @@ export const Main = ({
   const caretRef = useRef<HTMLSpanElement>(null);
   const textContainerRef = useRef<HTMLParagraphElement>(null);
   const { font } = useTheme();
+  const { playKeySound } = useKeyboardSound();
 
   useEffect(() => {
     if (gameState === "typing") {
@@ -46,6 +48,7 @@ export const Main = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key.length === 1) {
       e.preventDefault();
+      playKeySound();
       onType(e.key);
     }
   };
@@ -54,6 +57,7 @@ export const Main = ({
     const value = e.currentTarget.value;
     if (value.length > 0) {
       const lastChar = value[value.length - 1];
+      playKeySound();
       onType(lastChar);
       e.currentTarget.value = "";
     }
