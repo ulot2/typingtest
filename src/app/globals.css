@@ -1,9 +1,8 @@
 @import "tailwindcss";
 
 body {
-  background-color: #0a0a0a;
+  background-color: var(--bg);
 }
-
 @keyframes caret-blink {
   0%,
   100% {
@@ -16,4 +15,65 @@ body {
 
 [data-blinking] {
   animation: caret-blink 1s step-end infinite;
+}
+
+:root,
+[data-theme="default"] {
+  --bg: #0a0a0a;
+  --text: rgba(255, 255, 255, 0.5);
+  --text-dim: rgba(255, 255, 255, 0.25);
+  --correct: #34d399;
+  --incorrect: #f87171;
+  --accent: #3b82f6;
+  --surface: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.06);
+  --caret: #60a5fa;
+}
+
+[data-theme="dracula"] {
+  --bg: #282a36;
+  --text: #f8f8f2;
+  --text-dim: rgba(248, 248, 242, 0.3);
+  --correct: #50fa7b;
+  --incorrect: #ff5555;
+  --accent: #bd93f9;
+  --surface: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.08);
+  --caret: #bd93f9;
+}
+
+[data-theme="solarized"] {
+  --bg: #002b36;
+  --text: #839496;
+  --text-dim: rgba(131, 148, 150, 0.4);
+  --correct: #859900;
+  --incorrect: #dc322f;
+  --accent: #268bd2;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.06);
+  --caret: #268bd2;
+}
+
+[data-theme="monokai"] {
+  --bg: #272822;
+  --text: #f8f8f2;
+  --text-dim: rgba(248, 248, 242, 0.3);
+  --correct: #a6e22e;
+  --incorrect: #f92672;
+  --accent: #66d9ef;
+  --surface: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.08);
+  --caret: #66d9ef;
+}
+
+[data-theme="nord"] {
+  --bg: #2e3440;
+  --text: #d8dee9;
+  --text-dim: rgba(216, 222, 233, 0.3);
+  --correct: #a3be8c;
+  --incorrect: #bf616a;
+  --accent: #88c0d0;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.08);
+  --caret: #88c0d0;
 }

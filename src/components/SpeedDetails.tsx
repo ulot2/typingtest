@@ -37,15 +37,15 @@ const Dropdown = ({ value, options, onChange }: DropdownProps) => {
     <div ref={ref} className="relative flex-1 min-w-[140px]">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white cursor-pointer focus:outline-none focus:border-white/25 transition-colors"
+        className="w-full flex items-center justify-between bg-(--surface) border border-(--border) rounded-lg px-3 py-2 text-sm text-(--text) cursor-pointer focus:outline-none focus:border-(--border) transition-colors"
       >
         {value}
         <ChevronDown
-          className={`w-3.5 h-3.5 text-white/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 text-(--text-dim) transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
-        <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+        <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-(--bg) border border-(--border) rounded-lg overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
           {options.map((option) => (
             <button
               key={option}
@@ -55,8 +55,8 @@ const Dropdown = ({ value, options, onChange }: DropdownProps) => {
               }}
               className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                 value === option
-                  ? "bg-white/10 text-white"
-                  : "text-white/60 hover:bg-white/5 hover:text-white"
+                  ? "bg-(--surface) text-(--text) brightness-150"
+                  : "text-(--text-dim) hover:bg-(--surface) hover:text-(--text)"
               }`}
             >
               {option}
@@ -79,48 +79,48 @@ export const SpeedDetails = ({
 }: SpeedDetailsProps) => {
   return (
     <div className="max-w-5xl mx-auto px-6">
-      <div className="bg-white/5 border border-white/8 rounded-lg px-5 py-3">
+      <div className="bg-(--surface) border border-(--border) rounded-lg px-5 py-3">
         {/* Desktop layout */}
         <div className="hidden md:flex items-center justify-between">
           {mode !== "Zen" && (
             <div className="flex items-center gap-4 text-sm">
-              <span className="text-white/50">
-                WPM: <span className="text-white font-semibold">{wpm}</span>
+              <span className="text-(--text-dim)">
+                WPM: <span className="text-(--text) font-semibold">{wpm}</span>
               </span>
-              <span className="text-white/20">|</span>
-              <span className="text-white/50">
+              <span className="text-(--text-dim) opacity-40">|</span>
+              <span className="text-(--text-dim)">
                 Accuracy:{" "}
-                <span className="text-white font-semibold">{accuracy}%</span>
+                <span className="text-(--text) font-semibold">{accuracy}%</span>
               </span>
-              <span className="text-white/20">|</span>
-              <span className="text-white/50">
+              <span className="text-(--text-dim) opacity-40">|</span>
+              <span className="text-(--text-dim)">
                 Time:{" "}
-                <span className="text-white font-semibold">{timeLeft}</span>
+                <span className="text-(--text) font-semibold">{timeLeft}</span>
               </span>
             </div>
           )}
 
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-white/50">Difficulty:</span>
+              <span className="text-(--text-dim)">Difficulty:</span>
               {["Easy", "Medium", "Hard"].map((level) => (
                 <button
                   key={level}
                   onClick={() => setDifficulty(level)}
                   className={`px-3 py-1 rounded border text-sm transition-colors ${
                     difficulty === level
-                      ? "border-white/40 text-white"
-                      : "border-white/10 text-white/40 hover:border-white/20 hover:text-white/60"
+                      ? "border-(--border) text-(--text) brightness-150"
+                      : "border-(--border) text-(--text-dim) hover:text-(--text)"
                   }`}
                 >
                   {level}
                 </button>
               ))}
-              <span className="text-white/20">|</span>
+              <span className="text-(--text-dim) opacity-40">|</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-white/50">Mode:</span>
+              <span className="text-(--text-dim)">Mode:</span>
               <Dropdown
                 value={mode}
                 options={[
@@ -144,18 +144,22 @@ export const SpeedDetails = ({
           {mode !== "Zen" && (
             <div className="flex items-center justify-between text-sm">
               <div className="text-center">
-                <p className="text-white/40 text-xs">WPM:</p>
-                <p className="text-white font-semibold text-lg">{wpm}</p>
+                <p className="text-(--text-dim) text-xs">WPM:</p>
+                <p className="text-(--text) font-semibold text-lg">{wpm}</p>
               </div>
-              <div className="w-px h-8 bg-white/10" />
+              <div className="w-px h-8 bg-(--border)" />
               <div className="text-center">
-                <p className="text-white/40 text-xs">Accuracy:</p>
-                <p className="text-white font-semibold text-lg">{accuracy}%</p>
+                <p className="text-(--text-dim) text-xs">Accuracy:</p>
+                <p className="text-(--text) font-semibold text-lg">
+                  {accuracy}%
+                </p>
               </div>
-              <div className="w-px h-8 bg-white/10" />
+              <div className="w-px h-8 bg-(--border)" />
               <div className="text-center">
-                <p className="text-white/40 text-xs">Time:</p>
-                <p className="text-white font-semibold text-lg">{timeLeft}</p>
+                <p className="text-(--text-dim) text-xs">Time:</p>
+                <p className="text-(--text) font-semibold text-lg">
+                  {timeLeft}
+                </p>
               </div>
             </div>
           )}
