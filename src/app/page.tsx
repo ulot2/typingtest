@@ -97,6 +97,11 @@ export default function Home() {
       setCorrectChars((prev) => prev + 1);
     } else {
       setIncorrectChars((prev) => prev + 1);
+      if (mode === "Sudden Death") {
+        setTypedChars((prev) => prev + key);
+        setGameState("finished");
+        return;
+      }
     }
 
     setTypedChars((prev) => prev + key);

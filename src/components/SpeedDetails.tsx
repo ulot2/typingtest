@@ -34,7 +34,7 @@ const Dropdown = ({ value, options, onChange }: DropdownProps) => {
   }, []);
 
   return (
-    <div ref={ref} className="relative flex-1">
+    <div ref={ref} className="relative flex-1 min-w-[140px]">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white cursor-pointer focus:outline-none focus:border-white/25 transition-colors"
@@ -82,20 +82,23 @@ export const SpeedDetails = ({
       <div className="bg-white/5 border border-white/8 rounded-lg px-5 py-3">
         {/* Desktop layout */}
         <div className="hidden md:flex items-center justify-between">
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-white/50">
-              WPM: <span className="text-white font-semibold">{wpm}</span>
-            </span>
-            <span className="text-white/20">|</span>
-            <span className="text-white/50">
-              Accuracy:{" "}
-              <span className="text-white font-semibold">{accuracy}%</span>
-            </span>
-            <span className="text-white/20">|</span>
-            <span className="text-white/50">
-              Time: <span className="text-white font-semibold">{timeLeft}</span>
-            </span>
-          </div>
+          {mode !== "Zen" && (
+            <div className="flex items-center gap-4 text-sm">
+              <span className="text-white/50">
+                WPM: <span className="text-white font-semibold">{wpm}</span>
+              </span>
+              <span className="text-white/20">|</span>
+              <span className="text-white/50">
+                Accuracy:{" "}
+                <span className="text-white font-semibold">{accuracy}%</span>
+              </span>
+              <span className="text-white/20">|</span>
+              <span className="text-white/50">
+                Time:{" "}
+                <span className="text-white font-semibold">{timeLeft}</span>
+              </span>
+            </div>
+          )}
 
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
@@ -113,9 +116,8 @@ export const SpeedDetails = ({
                   {level}
                 </button>
               ))}
+              <span className="text-white/20">|</span>
             </div>
-
-            <span className="text-white/20">|</span>
 
             <div className="flex items-center gap-2">
               <span className="text-white/50">Mode:</span>
@@ -127,6 +129,8 @@ export const SpeedDetails = ({
                   "Timed (60s)",
                   "Timed (120s)",
                   "Passage",
+                  "Sudden Death",
+                  "Zen",
                 ]}
                 onChange={setMode}
               />
@@ -136,22 +140,24 @@ export const SpeedDetails = ({
 
         {/* Mobile layout */}
         <div className="flex flex-col gap-3 md:hidden">
-          <div className="flex items-center justify-between text-sm">
-            <div className="text-center">
-              <p className="text-white/40 text-xs">WPM:</p>
-              <p className="text-white font-semibold text-lg">{wpm}</p>
+          {mode !== "Zen" && (
+            <div className="flex items-center justify-between text-sm">
+              <div className="text-center">
+                <p className="text-white/40 text-xs">WPM:</p>
+                <p className="text-white font-semibold text-lg">{wpm}</p>
+              </div>
+              <div className="w-px h-8 bg-white/10" />
+              <div className="text-center">
+                <p className="text-white/40 text-xs">Accuracy:</p>
+                <p className="text-white font-semibold text-lg">{accuracy}%</p>
+              </div>
+              <div className="w-px h-8 bg-white/10" />
+              <div className="text-center">
+                <p className="text-white/40 text-xs">Time:</p>
+                <p className="text-white font-semibold text-lg">{timeLeft}</p>
+              </div>
             </div>
-            <div className="w-px h-8 bg-white/10" />
-            <div className="text-center">
-              <p className="text-white/40 text-xs">Accuracy:</p>
-              <p className="text-white font-semibold text-lg">{accuracy}%</p>
-            </div>
-            <div className="w-px h-8 bg-white/10" />
-            <div className="text-center">
-              <p className="text-white/40 text-xs">Time:</p>
-              <p className="text-white font-semibold text-lg">{timeLeft}</p>
-            </div>
-          </div>
+          )}
 
           <div className="flex items-center gap-3">
             <Dropdown
@@ -167,6 +173,8 @@ export const SpeedDetails = ({
                 "Timed (60s)",
                 "Timed (120s)",
                 "Passage",
+                "Sudden Death",
+                "Zen",
               ]}
               onChange={setMode}
             />
