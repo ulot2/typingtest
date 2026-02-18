@@ -119,19 +119,17 @@ export const SpeedDetails = ({
 
             <div className="flex items-center gap-2">
               <span className="text-white/50">Mode:</span>
-              {["Timed (60s)", "Passage"].map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMode(m)}
-                  className={`px-3 py-1 rounded border text-sm transition-colors ${
-                    mode === m
-                      ? "border-blue-400/60 text-white"
-                      : "border-white/10 text-white/40 hover:border-white/20 hover:text-white/60"
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
+              <Dropdown
+                value={mode}
+                options={[
+                  "Timed (15s)",
+                  "Timed (30s)",
+                  "Timed (60s)",
+                  "Timed (120s)",
+                  "Passage",
+                ]}
+                onChange={setMode}
+              />
             </div>
           </div>
         </div>
@@ -163,7 +161,13 @@ export const SpeedDetails = ({
             />
             <Dropdown
               value={mode}
-              options={["Timed (60s)", "Passage"]}
+              options={[
+                "Timed (15s)",
+                "Timed (30s)",
+                "Timed (60s)",
+                "Timed (120s)",
+                "Passage",
+              ]}
               onChange={setMode}
             />
           </div>

@@ -14,9 +14,16 @@ function getRandomText(difficulty: string): string {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+function getDuration(mode: string): number {
+  const match = mode.match(/\d+/);
+  return match ? Number(match[0]) : 0;
+}
+
 export default function Home() {
   const [gameState, setGameState] = useState("idle");
-  const [timeRemaining, setTimeRemaining] = useState(60);
+  const [timeRemaining, setTimeRemaining] = useState(
+    getDuration("Timed (60s)"),
+  );
 
   const [typedChars, setTypedChars] = useState("");
   const [correctChars, setCorrectChars] = useState(0);
@@ -38,8 +45,9 @@ export default function Home() {
     if (saved) setHighScore(Number(saved));
   }, []);
 
-  const elapsedTime =
-    mode === "Timed (60s)" ? 60 - timeRemaining : timeRemaining;
+  const elapsedTime = mode.startsWith("Timed")
+    ? getDuration(mode) - timeRemaining
+    : timeRemaining;
   const wpm =
     elapsedTime > 0 ? Math.round(correctChars / 5 / (elapsedTime / 60)) : 0;
 
@@ -52,7 +60,7 @@ export default function Home() {
     if (gameState !== "typing") return;
 
     const timer = setInterval(() => {
-      if (mode === "Timed (60s)") {
+      if (mode.startsWith("Timed")) {
         setTimeRemaining((prev) => Math.max(prev - 1, 0));
       } else {
         setTimeRemaining((prev) => prev + 1);
@@ -62,7 +70,11 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [gameState, mode]);
 
-  if (mode === "Timed (60s)" && gameState === "typing" && timeRemaining === 0) {
+  if (
+    mode.startsWith("Timed") &&
+    gameState === "typing" &&
+    timeRemaining === 0
+  ) {
     setGameState("finished");
     if (wpm > highScore) {
       setHighScore(wpm);
@@ -93,8 +105,9 @@ export default function Home() {
       setGameState("finished");
       const finalCorrect =
         key === sampleText[typedChars.length] ? correctChars + 1 : correctChars;
-      const currentElapsed =
-        mode === "Timed (60s)" ? 60 - timeRemaining : timeRemaining;
+      const currentElapsed = mode.startsWith("Timed")
+        ? getDuration(mode) - timeRemaining
+        : timeRemaining;
       const finalWpm =
         currentElapsed > 0
           ? Math.round(finalCorrect / 5 / (currentElapsed / 60))
@@ -109,7 +122,7 @@ export default function Home() {
 
   const handleRestart = () => {
     setGameState("idle");
-    setTimeRemaining(mode === "Timed (60s)" ? 60 : 0);
+    setTimeRemaining(mode.startsWith("Timed") ? getDuration(mode) : 0);
     setTypedChars("");
     setCorrectChars(0);
     setIncorrectChars(0);
@@ -143,7 +156,9 @@ export default function Home() {
           setMode={(value) => {
             setMode(value);
             if (gameState === "idle") {
-              setTimeRemaining(value === "Timed (60s)" ? 60 : 0);
+              setTimeRemaining(
+                value.startsWith("Timed") ? getDuration(value) : 0,
+              );
             }
           }}
         />

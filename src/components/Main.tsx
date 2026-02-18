@@ -22,6 +22,8 @@ export const Main = ({
 }: MainProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const caretRef = useRef<HTMLSpanElement>(null);
+  const textContainerRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     if (gameState === "typing") {
@@ -36,17 +38,15 @@ export const Main = ({
     }
   };
 
-  // Mobile keyboards don't reliably fire onKeyDown — they use onInput instead
   const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value;
     if (value.length > 0) {
       const lastChar = value[value.length - 1];
       onType(lastChar);
-      e.currentTarget.value = ""; // Clear so we always get the next char
+      e.currentTarget.value = "";
     }
   };
 
-  // Scroll the active character into view on mobile (only if off-screen)
   const activeCharRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -56,11 +56,26 @@ export const Main = ({
     const rect = el.getBoundingClientRect();
     const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
 
-    // Only scroll if the character is outside the visible area
     if (rect.top < 0 || rect.bottom > viewportHeight) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [typedChars]);
+
+  useEffect(() => {
+    const caret = caretRef.current;
+    const container = textContainerRef.current;
+    if (!caret || !container) return;
+
+    const target = activeCharRef.current;
+    if (!target) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+
+    caret.style.left = `${targetRect.left - containerRect.left}px`;
+    caret.style.top = `${targetRect.top - containerRect.top}px`;
+    caret.style.height = `${targetRect.height}px`;
+  }, [typedChars, sampleText]);
 
   const started = gameState !== "idle";
 
@@ -96,11 +111,19 @@ export const Main = ({
           spellCheck={false}
         />
         <p
-          className={`text-lg sm:text-xl leading-relaxed font-(family-name:--font-geist-mono) transition-all duration-500 ${
+          ref={textContainerRef}
+          className={`text-lg sm:text-xl leading-relaxed font-(family-name:--font-geist-mono) transition-all relative duration-500 ${
             started ? "text-white/50" : "text-white/25 blur-[5px] select-none"
           }`}
           onClick={() => inputRef.current?.focus()}
         >
+          {started && (
+            <span
+              ref={caretRef}
+              className="absolute w-[2px] bg-blue-400 rounded-full transition-all duration-100 ease-out"
+              data-blinking={gameState !== "typing" ? "" : undefined}
+            />
+          )}
           {sampleText.split("").map((char, i) => {
             let colorClass = "text-white/25";
 
