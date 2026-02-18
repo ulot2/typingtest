@@ -49,9 +49,10 @@ export default function Home() {
     if (saved) setHighScore(Number(saved));
   }, []);
 
-  const elapsedTime = mode.startsWith("Timed")
-    ? getDuration(mode) - timeRemaining
-    : timeRemaining;
+  const elapsedTime =
+    mode.startsWith("Timed") || mode === "Words"
+      ? (getDuration(mode) || 60) - timeRemaining
+      : timeRemaining;
   const wpm =
     elapsedTime > 0 ? Math.round(correctChars / 5 / (elapsedTime / 60)) : 0;
 
@@ -64,7 +65,7 @@ export default function Home() {
     if (gameState !== "typing") return;
 
     const timer = setInterval(() => {
-      if (mode.startsWith("Timed")) {
+      if (mode.startsWith("Timed") || mode === "Words") {
         setTimeRemaining((prev) => Math.max(prev - 1, 0));
       } else {
         setTimeRemaining((prev) => prev + 1);
@@ -75,7 +76,7 @@ export default function Home() {
   }, [gameState, mode]);
 
   if (
-    mode.startsWith("Timed") &&
+    (mode.startsWith("Timed") || mode === "Words") &&
     gameState === "typing" &&
     timeRemaining === 0
   ) {
@@ -128,9 +129,10 @@ export default function Home() {
       setGameState("finished");
       const finalCorrect =
         key === sampleText[typedChars.length] ? correctChars + 1 : correctChars;
-      const currentElapsed = mode.startsWith("Timed")
-        ? getDuration(mode) - timeRemaining
-        : timeRemaining;
+      const currentElapsed =
+        mode.startsWith("Timed") || mode === "Words"
+          ? (getDuration(mode) || 60) - timeRemaining
+          : timeRemaining;
       const finalWpm =
         currentElapsed > 0
           ? Math.round(finalCorrect / 5 / (currentElapsed / 60))
@@ -145,7 +147,11 @@ export default function Home() {
 
   const handleRestart = () => {
     setGameState("idle");
-    setTimeRemaining(mode.startsWith("Timed") ? getDuration(mode) : 0);
+    setTimeRemaining(
+      mode.startsWith("Timed") || mode === "Words"
+        ? getDuration(mode) || 60
+        : 0,
+    );
     setTypedChars("");
     setCorrectChars(0);
     setIncorrectChars(0);
@@ -194,7 +200,9 @@ export default function Home() {
             setMode(value);
             if (gameState === "idle") {
               setTimeRemaining(
-                value.startsWith("Timed") ? getDuration(value) : 0,
+                value.startsWith("Timed") || value === "Words"
+                  ? getDuration(value) || 60
+                  : 0,
               );
               if (value === "Words") {
                 const words = generateWordText(difficulty, 50).split(" ");
