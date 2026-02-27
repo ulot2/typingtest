@@ -243,7 +243,7 @@ export default function LeaderboardPage() {
         {/* Leaderboard table */}
         <div className="bg-(--surface) border border-(--border) rounded-xl overflow-hidden">
           {/* Table header */}
-          <div className="grid grid-cols-[3rem_1fr_5rem_4.5rem_4.5rem_6rem] sm:grid-cols-[3.5rem_1fr_5rem_5rem_5rem_8rem] px-4 py-3 border-b border-(--border) text-xs font-medium text-(--text-dim) uppercase tracking-wider">
+          <div className="grid grid-cols-[2.5rem_1fr_4rem_5rem] sm:grid-cols-[3.5rem_1fr_5rem_5rem_5rem_8rem] px-4 py-3 border-b border-(--border) text-xs font-medium text-(--text-dim) uppercase tracking-wider">
             <span>#</span>
             <span>Player</span>
             <span className="text-right">WPM</span>
@@ -281,7 +281,7 @@ export default function LeaderboardPage() {
                 return (
                   <div
                     key={score._id}
-                    className={`grid grid-cols-[3rem_1fr_5rem_4.5rem_4.5rem_6rem] sm:grid-cols-[3.5rem_1fr_5rem_5rem_5rem_8rem] px-4 py-3 items-center text-sm transition-colors ${
+                    className={`grid grid-cols-[2.5rem_1fr_4rem_5rem] sm:grid-cols-[3.5rem_1fr_5rem_5rem_5rem_8rem] px-4 py-3 items-center text-sm transition-colors ${
                       isCurrentUser
                         ? "bg-(--accent)/5 border-l-2 border-l-(--accent)"
                         : "hover:bg-(--bg)"
