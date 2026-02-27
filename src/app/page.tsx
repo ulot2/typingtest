@@ -11,6 +11,10 @@ import texts from "@/data/texts.json";
 import { generateWordText } from "@/data/wordPool";
 import { saveSession } from "@/lib/history";
 
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { api } from "../../convex/_generated/api";
+
 function getRandomText(difficulty: string): string {
   const pool = texts[difficulty as keyof typeof texts] || texts["Easy"];
   return pool[Math.floor(Math.random() * pool.length)];
@@ -47,11 +51,59 @@ export default function Home() {
   );
 
   const [highScore, setHighScore] = useState(0);
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
+
+  // Convex auth & score submission
+  const { isAuthenticated } = useConvexAuth();
+  const { signIn } = useAuthActions();
+  const submitScore = useMutation(api.scores.submitScore);
+  const profile = useQuery(api.users.getMe);
+  const ensureProfile = useMutation(api.users.ensureProfile);
+  const scoreSubmitRef = useRef(false);
+
+  // Ensure profile exists when authenticated
+  useEffect(() => {
+    if (profile && "needsProfile" in profile && profile.needsProfile) {
+      ensureProfile();
+    }
+  }, [profile, ensureProfile]);
 
   useEffect(() => {
     const saved = localStorage.getItem("typingTestHighScore");
     if (saved) setHighScore(Number(saved));
   }, []);
+
+  // Auto-submit score when game finishes and user is authenticated
+  useEffect(() => {
+    if (
+      gameState === "finished" &&
+      isAuthenticated &&
+      profile &&
+      "username" in profile &&
+      profile.username &&
+      !scoreSubmitRef.current
+    ) {
+      scoreSubmitRef.current = true;
+      const elapsed = getElapsedSeconds();
+      const finalWpm =
+        elapsed > 0 ? Math.round(correctChars / 5 / (elapsed / 60)) : 0;
+      const finalAccuracy =
+        correctChars + incorrectChars > 0
+          ? Math.round((correctChars / (correctChars + incorrectChars)) * 100)
+          : 100;
+
+      submitScore({
+        wpm: finalWpm > 0 ? finalWpm : wpm,
+        accuracy: finalAccuracy > 0 ? finalAccuracy : accuracy,
+        mode,
+        difficulty,
+        consistency,
+      })
+        .then(() => setScoreSubmitted(true))
+        .catch((err) => console.error("Failed to submit score:", err));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState, isAuthenticated, profile]);
 
   const getElapsedSeconds = () => {
     if (!startTimeRef.current) return 0;
@@ -235,6 +287,8 @@ export default function Home() {
     wpmSamplesRef.current = [];
     startTimeRef.current = null;
     setConsistency(100);
+    setScoreSubmitted(false);
+    scoreSubmitRef.current = false;
     if (mode === "Words") {
       const words = generateWordText(difficulty, 50).split(" ");
       setWordList(words);
@@ -243,6 +297,10 @@ export default function Home() {
     } else {
       setSampleText(getRandomText(difficulty));
     }
+  };
+
+  const handleSignIn = () => {
+    void signIn("google");
   };
 
   return (
@@ -321,7 +379,13 @@ export default function Home() {
           accuracy={accuracy}
           correctChars={correctChars}
           incorrectChars={incorrectChars}
+          consistency={consistency}
+          mode={mode}
+          difficulty={difficulty}
           onRestart={handleRestart}
+          isAuthenticated={isAuthenticated}
+          onSignIn={handleSignIn}
+          scoreSubmitted={scoreSubmitted}
         />
       ) : (
         <Results
@@ -331,7 +395,12 @@ export default function Home() {
           incorrectChars={incorrectChars}
           keyErrors={keyErrors}
           consistency={consistency}
+          mode={mode}
+          difficulty={difficulty}
           onRestart={handleRestart}
+          isAuthenticated={isAuthenticated}
+          onSignIn={handleSignIn}
+          scoreSubmitted={scoreSubmitted}
         />
       )}
     </div>

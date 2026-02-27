@@ -1,7 +1,10 @@
 "use client";
 
-import { X, Check } from "lucide-react";
+import { X, Check, Pencil } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
+import { useState, useEffect } from "react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 const themeColors: Record<string, string> = {
   default: "#0a0a0a",
@@ -35,6 +38,40 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
     soundEnabled,
     setSoundEnabled,
   } = useTheme();
+
+  const { isAuthenticated } = useConvexAuth();
+  const profile = useQuery(api.users.getMe);
+  const updateUsername = useMutation(api.users.updateUsername);
+
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [usernameSaving, setUsernameSaving] = useState(false);
+
+  useEffect(() => {
+    if (profile && "username" in profile && profile.username) {
+      setUsernameInput(profile.username);
+    }
+  }, [profile]);
+
+  const handleSaveUsername = async () => {
+    setUsernameError("");
+    setUsernameSaving(true);
+    try {
+      await updateUsername({ username: usernameInput });
+      setEditingUsername(false);
+    } catch (err) {
+      let message = "Failed to update username";
+      if (err instanceof Error) {
+        // Convex wraps errors: "Uncaught Error: Username is already taken"
+        const match = err.message.match(/Uncaught Error:\s*(.+)/);
+        message = match ? match[1] : err.message;
+      }
+      setUsernameError(message);
+    } finally {
+      setUsernameSaving(false);
+    }
+  };
 
   if (!open) return null;
 
@@ -138,6 +175,85 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps) => {
               </div>
             </button>
           </div>
+
+          {/* Account — only visible when signed in */}
+          {isAuthenticated &&
+            profile &&
+            "username" in profile &&
+            profile.username && (
+              <div>
+                <h3 className="text-sm font-medium text-(--text) mb-3">
+                  Account
+                </h3>
+                <div className="bg-(--surface) border border-(--border) rounded-xl p-4">
+                  {editingUsername ? (
+                    <div className="space-y-2">
+                      <label className="text-xs text-(--text-dim)">
+                        Username
+                      </label>
+                      <input
+                        type="text"
+                        value={usernameInput}
+                        onChange={(e) => {
+                          setUsernameInput(e.target.value);
+                          setUsernameError("");
+                        }}
+                        className="w-full px-3 py-2 bg-(--bg) border border-(--border) rounded-lg text-sm text-(--text) focus:outline-none focus:border-(--accent)"
+                        maxLength={20}
+                        placeholder="Enter username"
+                        autoFocus
+                      />
+                      {usernameError && (
+                        <p className="text-xs text-red-400">{usernameError}</p>
+                      )}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleSaveUsername}
+                          disabled={usernameSaving}
+                          className="px-3 py-1.5 text-xs font-medium bg-(--accent) text-(--bg) rounded-lg hover:opacity-90 transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          {usernameSaving ? "Saving..." : "Save"}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingUsername(false);
+                            setUsernameError("");
+                            if (
+                              profile &&
+                              "username" in profile &&
+                              profile.username
+                            ) {
+                              setUsernameInput(profile.username);
+                            }
+                          }}
+                          className="px-3 py-1.5 text-xs text-(--text-dim) hover:text-(--text) transition-colors cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-(--text)">
+                          {profile.username}
+                        </p>
+                        <p className="text-xs text-(--text-dim) mt-0.5">
+                          Your username appears on the leaderboard
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setEditingUsername(true)}
+                        className="p-2 rounded-lg text-(--text-dim) hover:text-(--text) hover:bg-(--bg) transition-colors cursor-pointer"
+                        title="Edit username"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
         </div>
       </div>
     </div>

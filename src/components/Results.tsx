@@ -5,6 +5,7 @@ import { CheckCircle, RotateCcw, Sparkle } from "lucide-react";
 import { getHistory, SessionRecord } from "@/lib/history";
 import { WpmChart } from "./WpmChart";
 import { KeyboardHeatmap } from "./KeyboardHeatmap";
+import { ShareCard } from "./ShareCard";
 
 interface ResultsProps {
   wpm: number;
@@ -13,7 +14,12 @@ interface ResultsProps {
   incorrectChars: number;
   keyErrors: Record<string, number>;
   consistency: number;
+  mode: string;
+  difficulty: string;
   onRestart: () => void;
+  isAuthenticated: boolean;
+  onSignIn: () => void;
+  scoreSubmitted: boolean;
 }
 
 export const Results = ({
@@ -23,7 +29,12 @@ export const Results = ({
   incorrectChars,
   keyErrors,
   consistency,
+  mode,
+  difficulty,
   onRestart,
+  isAuthenticated,
+  onSignIn,
+  scoreSubmitted,
 }: ResultsProps) => {
   const [history] = useState<SessionRecord[]>(() => getHistory());
 
@@ -82,6 +93,23 @@ export const Results = ({
           </div>
         </div>
 
+        {/* Leaderboard status */}
+        {!isAuthenticated && (
+          <div className="mt-6 w-full max-w-xl">
+            <button
+              onClick={onSignIn}
+              className="w-full py-3 px-4 bg-(--surface) border border-(--border) rounded-xl text-sm text-(--text-dim) hover:border-(--accent) transition-colors cursor-pointer"
+            >
+              🔑 Sign in with Google to save this score to the leaderboard
+            </button>
+          </div>
+        )}
+        {isAuthenticated && scoreSubmitted && (
+          <p className="mt-4 text-xs text-emerald-400/70">
+            ✓ Score submitted to leaderboard
+          </p>
+        )}
+
         {/* Error Heatmap */}
         <KeyboardHeatmap keyErrors={keyErrors} />
 
@@ -90,13 +118,24 @@ export const Results = ({
           <WpmChart sessions={history} />
         </div>
 
-        <button
-          onClick={onRestart}
-          className="mt-8 flex items-center gap-2 px-6 py-2.5 bg-(--text) text-(--bg) text-sm font-medium rounded-lg hover:opacity-90 transition-colors cursor-pointer"
-        >
-          Go Again
-          <RotateCcw className="w-4 h-4" />
-        </button>
+        {/* Action buttons */}
+        <div className="flex items-center gap-3 mt-8">
+          <button
+            onClick={onRestart}
+            className="flex items-center gap-2 px-6 py-2.5 bg-(--text) text-(--bg) text-sm font-medium rounded-lg hover:opacity-90 transition-colors cursor-pointer"
+          >
+            Go Again
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+
+        <ShareCard
+          wpm={wpm}
+          accuracy={accuracy}
+          consistency={consistency}
+          mode={mode}
+          difficulty={difficulty}
+        />
       </div>
     </div>
   );

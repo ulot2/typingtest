@@ -1,13 +1,20 @@
 "use client";
 
 import { PartyPopper, RotateCcw } from "lucide-react";
+import { ShareCard } from "./ShareCard";
 
 interface HighscoreProps {
   wpm: number;
   accuracy: number;
   correctChars: number;
   incorrectChars: number;
+  consistency: number;
+  mode: string;
+  difficulty: string;
   onRestart: () => void;
+  isAuthenticated: boolean;
+  onSignIn: () => void;
+  scoreSubmitted: boolean;
 }
 
 export const Highscore = ({
@@ -15,7 +22,13 @@ export const Highscore = ({
   accuracy,
   correctChars,
   incorrectChars,
+  consistency,
+  mode,
+  difficulty,
   onRestart,
+  isAuthenticated,
+  onSignIn,
+  scoreSubmitted,
 }: HighscoreProps) => {
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 sm:py-16">
@@ -53,13 +66,41 @@ export const Highscore = ({
           </div>
         </div>
 
-        <button
-          onClick={onRestart}
-          className="mt-8 flex items-center gap-2 px-6 py-2.5 bg-(--text) text-(--bg) text-sm font-medium rounded-lg hover:opacity-90 transition-colors cursor-pointer"
-        >
-          Beat This Score
-          <RotateCcw className="w-4 h-4" />
-        </button>
+        {/* Leaderboard status */}
+        {!isAuthenticated && (
+          <div className="mt-6 w-full max-w-md">
+            <button
+              onClick={onSignIn}
+              className="w-full py-3 px-4 bg-(--surface) border border-(--border) rounded-xl text-sm text-(--text-dim) hover:border-(--accent) transition-colors cursor-pointer"
+            >
+              🔑 Sign in with Google to save this score to the leaderboard
+            </button>
+          </div>
+        )}
+        {isAuthenticated && scoreSubmitted && (
+          <p className="mt-4 text-xs text-emerald-400/70">
+            ✓ Score submitted to leaderboard
+          </p>
+        )}
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-3 mt-8">
+          <button
+            onClick={onRestart}
+            className="flex items-center gap-2 px-6 py-2.5 bg-(--text) text-(--bg) text-sm font-medium rounded-lg hover:opacity-90 transition-colors cursor-pointer"
+          >
+            Beat This Score
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+
+        <ShareCard
+          wpm={wpm}
+          accuracy={accuracy}
+          consistency={consistency}
+          mode={mode}
+          difficulty={difficulty}
+        />
       </div>
     </div>
   );
