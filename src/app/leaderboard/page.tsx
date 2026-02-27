@@ -12,7 +12,9 @@ import {
   LogIn,
   ChevronDown,
   Flame,
+  Settings,
 } from "lucide-react";
+import { SettingsModal } from "@/components/SettingsModal";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -35,10 +37,10 @@ export default function LeaderboardPage() {
   const [difficultyFilter, setDifficultyFilter] = useState("All");
   const [modeOpen, setModeOpen] = useState(false);
   const [difficultyOpen, setDifficultyOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
   const { signIn } = useAuthActions();
-
   const scores = useQuery(api.scores.getLeaderboard, {
     mode: modeFilter === "All" ? undefined : modeFilter,
     difficulty: difficultyFilter === "All" ? undefined : difficultyFilter,
@@ -93,6 +95,13 @@ export default function LeaderboardPage() {
               Top typists ranked by speed
             </p>
           </div>
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="ml-auto p-2 rounded-lg text-(--text-dim) hover:text-(--text) hover:bg-(--surface) transition-colors cursor-pointer"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Auth banner */}
@@ -345,6 +354,10 @@ export default function LeaderboardPage() {
           </span>
         </div>
       </div>
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
     </div>
   );
 }
